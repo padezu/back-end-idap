@@ -17,7 +17,7 @@ class userADM{
     public $Adm_UsTipo = '';
     public $Adm_Sucurs = '';
     public $Adm_FecSis = '';
-
+    public $Adm_ApiKey = '';
 }
 
 

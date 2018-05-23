@@ -57,6 +57,9 @@ $app->get('/getAdmins', function (Request $request, Response $response){
 //Obtiene administrador por ID.
 $app->get('/getAdmins/{id}', function (Request $request, Response $response){
 
+    $config = new Zend\Config\Config(include '../config/config.php');
+    //echo $config->webhost;
+    
     //obtenemos el id del administrador
     $id = $request->getAttribute('id');
 
@@ -91,7 +94,7 @@ $app->get('/getAdmins/{id}', function (Request $request, Response $response){
             $user_item->Adm_UsTipo = $row['Adm_UsTipo'];
             $user_item->Adm_Sucurs = $row['Adm_Sucurs'];
             $user_item->Adm_FecSis = $row['Adm_FecSis'];
-
+           
             array_push($users_arr["usuarios"], $user_item);
         }
 
@@ -107,6 +110,7 @@ $app->get('/getAdmins/{id}', function (Request $request, Response $response){
 //Login de un usuario administrador.
 $app->post('/IniciarSesion', function (Request $request, Response $response){
 
+    $config = new Zend\Config\Config(include '../config/config.php');
     //obtenemos el id del administrador
     $usuario = $request->getParam('usuario');
     $contrasena = $request->getParam('contrasena');
@@ -125,6 +129,34 @@ $app->post('/IniciarSesion', function (Request $request, Response $response){
 
     if ($stmt->rowCount() > 0){
 
+        $tokenId    = base64_encode(random_bytes(32));
+        $issuedAt   = time();
+        $notBefore  = $issuedAt + 10;   //Adding 10 seconds
+        $expire     = $notBefore + 60;  // Adding 60 seconds
+        $serverName = $config->webhost; // Retrieve the server name from config file
+
+        $data = [
+            'iat'  => $issuedAt,         // Issued at: time when the token was generated
+            'jti'  => $tokenId,          // Json Token Id: an unique identifier for the token
+            'iss'  => $serverName,       // Issuer
+            'nbf'  => $notBefore,        // Not before
+            'exp'  => $expire,           // Expire
+            'data' => [                  // Data related to the signer user
+                'userId'   => $tokenId, // userid from the users table
+                'userName' => $usuario // User name
+            ]
+        ];
+
+        $secretKey = base64_decode($config->gjwtKey);
+
+        $pade = new \Firebase\JWT\JWT; 
+        $jwt = $pade->encode(
+            $data,      //Data to be encoded in the JWT
+            $secretKey, // The signing key
+            'HS512'     // Algorithm used to sign the token, see https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40#section-3
+        ); 
+
+
         // products array
         $users_arr["usuarios"]=array();
 
@@ -142,11 +174,13 @@ $app->post('/IniciarSesion', function (Request $request, Response $response){
             $user_item->Adm_UsTipo = $row['Adm_UsTipo'];
             $user_item->Adm_Sucurs = $row['Adm_Sucurs'];
             $user_item->Adm_FecSis = $row['Adm_FecSis'];
+            $user_item->Adm_ApiKey =  $jwt;
 
+            return $response->withJson($user_item);
             array_push($users_arr["usuarios"], $user_item);
         }
 
-        return $response->withJson($users_arr);
+        //<return $response->withJson($users_arr);
 
 
     }else{
