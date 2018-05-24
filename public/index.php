@@ -6,6 +6,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 require '../vendor/autoload.php';
 require '../config/db.php';
 require '../model/userADM.php';
+require '../model/menuADM.php';
 
 /*
  * Application setup, database connection, data sanitization and user  
@@ -40,7 +41,6 @@ require '../model/userADM.php';
 //       * More code here...
 //       */
 // }
-$obj = new \Firebase\JWT\JWT; 
 $app = new \Slim\App;
 $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
     $name = $args['name'];
