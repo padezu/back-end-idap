@@ -4,7 +4,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 $app->get('/getSucurs', function (Request $request, Response $response){
 
-    $apiKey = $request->getHeader('Api-Key')[0];//$request->getHeader('HTTP_API_KEY');    
+    $apiKey = $request->getHeader('Api-Key')[0];
    
     try{
 
@@ -53,6 +53,160 @@ $app->get('/getSucurs', function (Request $request, Response $response){
         $rs['Mensaje'] = "Sin privilegios de acceso";
         $rs["data"] = null;
         return $response->withJson($rs);
+    }
+
+});
+
+$app->post('/addSucursal', function (Request $request, Response $response){
+
+
+    try{
+        $apiKey = $request->getHeader('Api-Key')[0];
+        $data = Auth::GetData($apiKey);
+
+        $json = $request->getParam('json');
+        $nombre = $json['nombre'];
+        $prefijo = $json['prefijo'];
+        
+        $query = "CALL PMSUCURSALALT('$nombre','$prefijo')";
+        
+        // instantiate database and product object
+        $database = new db();
+        $db = $database->getConnection();
+        
+        $stmt = $db->prepare($query);
+        // execute query
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0){
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+
+                $rs['CodigoRespuesta'] = $row['ErrorCodigo'];
+                $rs['Mensaje'] = $row['ErrorMensaje'];
+                $rs["data"] = null;
+            }
+
+            return $response->withJson($rs);
+
+        }else{    
+            $rs['CodigoRespuesta'] = "3";
+            $rs['Mensaje'] = "Error al insertar la sucursal";
+            $rs["data"] = null;
+            return $response->withJson($rs);
+        }
+
+
+    } catch (Exception $e) {
+        
+        $rs['CodigoRespuesta'] = "1";
+        $rs['Mensaje'] = "Sin privilegios de acceso";
+        $rs["data"] = null;
+        return $response->withJson($rs);
+    
+    }
+
+});
+
+$app->post('/updateSucursal', function (Request $request, Response $response){
+
+
+    try{
+        $apiKey = $request->getHeader('Api-Key')[0];
+        $data = Auth::GetData($apiKey);
+
+        $json = $request->getParam('json');
+        $id = $json['id'];
+        $nombre = $json['nombre'];
+        $prefijo = $json['prefijo'];
+        
+        $query = "CALL PMSUCURSALMOD($id,'$nombre','$prefijo')";
+        
+        // instantiate database and product object
+        $database = new db();
+        $db = $database->getConnection();
+        
+        $stmt = $db->prepare($query);
+        // execute query        
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0){
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+                
+                $rs['CodigoRespuesta'] = $row['ErrorCodigo'];
+                $rs['Mensaje'] = $row['ErrorMensaje'];
+                $rs["data"] = null;
+            }
+
+            return $response->withJson($rs);
+
+        }else{    
+            $rs['CodigoRespuesta'] = "3";
+            $rs['Mensaje'] = "Error al insertar la sucursal";
+            $rs["data"] = null;
+            return $response->withJson($rs);
+        }
+
+
+    } catch (Exception $e) {
+        
+        $rs['CodigoRespuesta'] = "1";
+        $rs['Mensaje'] = "Sin privilegios de acceso";
+        $rs["data"] = null;
+        return $response->withJson($rs);
+    
+    }
+
+});
+
+
+$app->post('/deleteSucursal', function (Request $request, Response $response){
+
+
+    try{
+        $apiKey = $request->getHeader('Api-Key')[0];
+        $data = Auth::GetData($apiKey);
+
+        $json = $request->getParam('json');
+        $id = $json['id'];
+        
+        $query = "CALL PMSUCURSALDEL($id)";
+        
+        // instantiate database and product object
+        $database = new db();
+        $db = $database->getConnection();
+        
+        $stmt = $db->prepare($query);
+        // execute query        
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0){
+
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+                
+                $rs['CodigoRespuesta'] = $row['ErrorCodigo'];
+                $rs['Mensaje'] = $row['ErrorMensaje'];
+                $rs["data"] = null;
+            }
+
+            return $response->withJson($rs);
+
+        }else{    
+            $rs['CodigoRespuesta'] = "3";
+            $rs['Mensaje'] = "Error al insertar la sucursal";
+            $rs["data"] = null;
+            return $response->withJson($rs);
+        }
+
+
+    } catch (Exception $e) {
+        
+        $rs['CodigoRespuesta'] = "1";
+        $rs['Mensaje'] = "Sin privilegios de acceso";
+        $rs["data"] = null;
+        return $response->withJson($rs);
+    
     }
 
 });
