@@ -8,6 +8,7 @@
 class userADM{
 
     //object properties
+    public $Adm_IDUsua = '';
     public $Adm_Estatu = '';
     public $Adm_UsTipo = '';
     public $Adm_Sucurs = '';

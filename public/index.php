@@ -8,6 +8,8 @@ require '../model/userADM.php';
 require '../model/menuADM.php';
 require '../config/tokenJWT.php';
 require '../model/sucursVO.php';
+require '../model/TipoAdmVO.php';
+require '../model/alumnoVO.php';
 
 $app = new \Slim\App;
 
@@ -16,6 +18,10 @@ require_once('../src/rutas/admins.php');
 
 //SUCURSALES DISPONIBES
 require_once('../src/rutas/sucurs.php');
+
+//SUCURSALES DISPONIBES
+require_once('../src/rutas/alumnos.php');
+
 
 $app->run();
 
